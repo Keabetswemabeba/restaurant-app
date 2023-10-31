@@ -116,7 +116,7 @@ const CartScreen = ({navigation}) => {
               <Text style={{fontSize: 18, fontWeight: 'bold'}}>R{sum}</Text>
             </View>
             <View style={{marginHorizontal: 30}}>
-              <PrimaryButton title="CHECKOUT" />
+              <PrimaryButton title="CHECKOUT" onPress={() => navigation.navigate("PaymentScreen")} />
             </View>
           </View>
         )}
