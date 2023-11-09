@@ -5,16 +5,28 @@ import {
   StyleSheet,
   TextInput,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { signInWithEmailAndPassword } from "@firebase/auth";
-import { auth } from "../config/firebase";
-import { useNavigation } from "@react-navigation/native";
+import { auth, db } from "../config/firebase";
 import COLORS from "../consts/colors";
 
 function Login({navigation}) {
   // const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [users, setUsers] = useState([]);
+
+  useEffect(() => {
+    // Retrieve data from Firebase "users" collection
+    const getUsers = async () => {
+      const usersRef = collection(db, "users");
+      const snapshot = await getDocs(usersRef);
+      const usersData = snapshot.docs.map((doc) => doc.data());
+      setUsers(usersData);
+    };
+
+    getUsers();
+  }, []);
 
   function login() {
     signInWithEmailAndPassword(auth, email, password)
@@ -24,7 +36,7 @@ function Login({navigation}) {
       })
       .catch((error) => {
         console.log("You don't have an account");
-        alert("You Don't Have An Account")
+        alert("You Don't Have An Account");
         console.log(error);
       });
   }

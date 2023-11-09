@@ -29,17 +29,39 @@ function Signup() {
   function signup() {
     createUserWithEmailAndPassword(auth, email, password)
       .then(async (userCredentials) => {
-        
-        const displayName = uid
-        setUser(() => ({...userCredentials}))
+        const displayName = uid;
+        setUser(() => ({ ...userCredentials }));
 
-        updateProfile(auth.currentUser, {displayName:displayName}).then().catch()
-        alert(displayName+ "successfull")
+        updateProfile(auth.currentUser, { displayName: displayName })
+          .then(() => {
+            // Add user details to Firebase collection
+            const userRef = collection(db, "users");
+            const newUser = {
+              name,
+              lastName,
+              contact,
+              address,
+              cardDetails,
+              uid: userCredentials.user.uid,
+            };
+            addDoc(userRef, newUser)
+              .then(() => {
+                console.log("User details added to Firebase collection");
+              })
+              .catch((error) => {
+                console.log("Error adding user details to Firebase collection:", error);
+              });
+          })
+          .catch((error) => {
+            console.log("Error updating user profile:", error);
+          });
+
+        alert(displayName + " successfully registered");
         console.log("User Successfully Registered");
-        navigation.push("HomeScreen", {user:{user}});
+        navigation.push("HomeScreen", { user: { user } });
       })
       .catch((error) => {
-        alert(error)
+        alert(error);
         console.log(error);
       });
   }
@@ -63,7 +85,7 @@ function Signup() {
       <TextInput
         placeholder="Enter Surname"
         type="lastname"
-        onChangeText={(event) => setLastName(event)}
+        onChangeText={(lastName) => setLastName(lastName)}
         style={styles.loginInput}
         autoCorrect={false}
       />
@@ -71,7 +93,7 @@ function Signup() {
         placeholder="Enter Contact"
         type="number"
         style={styles.loginInput}
-        onChangeText={(event) => setContact(event)}
+        onChangeText={(contact) => setContact(contact)}
         autoCapitalize="none"
         autoCorrect={false}
       />
@@ -79,14 +101,14 @@ function Signup() {
         placeholder="Enter Address"
         type="address"
         style={styles.loginInput}
-        onChangeText={(event) => setAddress(event)}
+        onChangeText={(address) => setAddress(address)}
         autoCorrect={false}
       />
       <TextInput
         placeholder="Enter Email"
         type="email"
         style={styles.loginInput}
-        onChangeText={(event) => setEmail(event)}
+        onChangeText={(email) => setEmail(email)}
         autoCapitalize="none"
         autoCorrect={false}
       />
@@ -103,7 +125,7 @@ function Signup() {
         placeholder="Enter Card Details"
         type="banking details"
         style={styles.loginInput}
-        onChangeText={(event) => setCardDetails(event)}
+        onChangeText={(cardDetails) => setCardDetails(cardDetails)}
         autoCapitalize="none"
         autoCorrect={false}
         secureTextEntry={true}

@@ -14,13 +14,7 @@ import React, { useEffect, useState } from "react";
 import COLORS from "../consts/colors";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { db, storage } from "../config/firebase";
-import {
-  addDoc,
-  collection,
-  getDocs,
-  query,
-  where,
-} from "firebase/firestore";
+import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { auth } from "../config/firebase";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
 
@@ -30,19 +24,20 @@ const cardWidth = width / 2 - 20;
 const HomeScreen = ({ navigation }) => {
   const [selectedCategoryIndex, setSelectedCategoryIndex] = useState(0);
   const [foods, setFoods] = useState([]);
-  const [theFoods, setTheFoods] = useState([])
-  const [foodCategory, setFoodCategory] = useState([])
-  const [dessertCategory, setDessertCategory] = useState([])
-  const [drinksCategory, setDrinksCategory] = useState([])
+  const [theFoods, setTheFoods] = useState([]);
+  const [foodCategory, setFoodCategory] = useState([]);
+  const [dessertCategory, setDessertCategory] = useState([]);
+  const [drinkCategory, setDrinkCategory] = useState([]);
   const [foodName, setFoodName] = useState("");
   const [foodIngredients, setFoodIngredients] = useState("");
   const [foodPrice, setFoodPrice] = useState("");
   const [foodImage, setFoodImage] = useState("");
   const [addCart, setAddCart] = useState(false);
 
-  // const foodCategory = [];
-  // const dessertCategory = [];
-  // const drinksCategory = [];
+  // let theFoods = [];
+  // let foodCategory = [];
+  // let dessertCategory = [];
+  // let drinkCategory = [];
 
   const foodRef = collection(db, "foods");
   const cartRef = collection(db, "cart");
@@ -60,28 +55,32 @@ const HomeScreen = ({ navigation }) => {
     console.log(foodRef);
 
     let data = await getDocs(foodRef);
+    setFoods(data.docs.map((doc) => ({ ...doc.data(), id: doc.id })));
 
     const q = query(collection(db, "foods"));
     const querySnapshot = await getDocs(q);
- 
-    querySnapshot.forEach(async (doc) => {
-    console.log(doc.data());
-      const imageUrl = await getDownloadURL(ref(storage, doc.data().image));
-      theFoods.push({
-        id: doc.id,
-        name: doc.data().name,
-        ingredients: doc.data().ingredients,
-        price: doc.data().price,
-        cart: addCart,
-        image: imageUrl,
-      });
-    });
 
-    setFoods(theFoods);
+    querySnapshot.forEach(async (doc) => {
+      console.log(doc.data());
+      const imageUrl = await getDownloadURL(ref(storage, doc.data().image));
+      setFoods((prevFoods) => [
+        ...prevFoods,
+        {
+          id: doc.id,
+          name: doc.data().name,
+          ingredients: doc.data().ingredients,
+          price: doc.data().price,
+          cart: addCart,
+          image: imageUrl,
+        },
+      ]);
+    });
   };
 
   const food = async () => {
-    const q = query(collection(db, "foods"), where("category", "==", "food"));
+    setFoodCategory([]);
+
+    const q = query(collection(db, "foods"), where("Category", "==", "food"));
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach(async (doc) => {
@@ -89,21 +88,27 @@ const HomeScreen = ({ navigation }) => {
       console.log(doc.data().name);
 
       const imageUrl = await getDownloadURL(ref(storage, doc.data().image));
-      foodCategory.push({
-        name: doc.data().name,
-        price: doc.data().price,
-        ingredients: doc.data().ingredients,
-        image: imageUrl,
-      });
+      setFoodCategory((prevFoodCategory) => [
+        ...prevFoodCategory,
+        {
+          name: doc.data().name,
+          price: doc.data().price,
+          ingredients: doc.data().ingredients,
+          image: imageUrl,
+        },
+      ]);
     });
-    // console.log(foodCategory);
-    setFoodCategory(foodCategory);
+    // console.log(dessertCategory);
+    setFoods(foodCategory);
   };
 
   const dessert = async () => {
+    setDessertCategory([]);
+
     const q = query(
       collection(db, "foods"),
-      where("category", "==", "dessert"));
+      where("Category", "==", "dessert")
+    );
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach(async (doc) => {
@@ -111,18 +116,24 @@ const HomeScreen = ({ navigation }) => {
       console.log(doc.data().name);
 
       const imageUrl = await getDownloadURL(ref(storage, doc.data().image));
-      dessertCategory.push({
-        name: doc.data().name,
-        price: doc.data().price,
-        ingredients: doc.data().ingredients,
-        image: imageUrl,
-      });
+      setDessertCategory((prevDessertCategory) => [
+        ...prevDessertCategory,
+        {
+          name: doc.data().name,
+          price: doc.data().price,
+          ingredients: doc.data().ingredients,
+          image: imageUrl,
+        },
+      ]);
     });
     // console.log(dessertCategory);
-    setDessertCategory(dessertCategory);
+    setFoods(dessertCategory);
   };
+
   const drinks = async () => {
-    const q = query(collection(db, "foods"), where("category", "==", "drink"));
+    setDrinkCategory([]);
+
+    const q = query(collection(db, "foods"), where("Category", "==", "drink"));
     const querySnapshot = await getDocs(q);
 
     querySnapshot.forEach(async (doc) => {
@@ -130,32 +141,35 @@ const HomeScreen = ({ navigation }) => {
       console.log(doc.data().name);
 
       const imageUrl = await getDownloadURL(ref(storage, doc.data().image));
-      drinksCategory.push({
-        name: doc.data().name,
-        price: doc.data().price,
-        ingredients: doc.data().ingredients,
-        image: imageUrl,
-      });
+      setDrinkCategory((prevDrinkCategory) => [
+        ...prevDrinkCategory,
+        {
+          name: doc.data().name,
+          price: doc.data().price,
+          ingredients: doc.data().ingredients,
+          image: imageUrl,
+        },
+      ]);
     });
     // console.log(drinksCategory);
-    setDrinksCategory(drinksCategory);
+    setFoods(drinkCategory);
   };
 
-  function some() {
-    for (var i = 0; i < foods.length; i++) {
-      if (foods[i].category === "drinks") {
-        console.log(foods[i].name);
-        setFoodName(foods[i].name);
-        setFoodPrice(foods[i].price);
-        setFoodIngredients(foods[i].ingredients);
-        setFoodImage(foods[i].image);
-      }
+  const some = () => {
+    const drinksCategory = foods.filter((food) => food.Category === "drinks");
+    if (drinksCategory.length > 0) {
+      const drink = drinksCategory[0];
+      console.log(drink.name);
+      setFoodName(drink.name);
+      setFoodPrice(drink.price);
+      setFoodIngredients(drink.ingredients);
+      setFoodImage(drink.image);
     }
-  }
+  };
 
   useEffect(() => {
     console.log("some");
-    getItems()
+    getItems();
   }, []);
 
   const ListCategories = () => {
@@ -165,7 +179,7 @@ const HomeScreen = ({ navigation }) => {
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={style.categoriesListContainer}
       >
-        <TouchableOpacity activeOpacity={0.8} onPress={food}>
+        <TouchableOpacity activeOpacity={0.5} onPress={food}>
           <View
             style={{
               backgroundColor: selectedCategoryIndex
@@ -185,7 +199,7 @@ const HomeScreen = ({ navigation }) => {
                 }}
               />
             </View>
- 
+
             <Text
               style={{
                 fontSize: 15,
@@ -199,7 +213,7 @@ const HomeScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8} onPress={dessert}>
+        <TouchableOpacity activeOpacity={0.5} onPress={dessert}>
           <View
             style={{
               backgroundColor: selectedCategoryIndex
@@ -233,7 +247,7 @@ const HomeScreen = ({ navigation }) => {
           </View>
         </TouchableOpacity>
 
-        <TouchableOpacity activeOpacity={0.8} onPress={drinks}>
+        <TouchableOpacity activeOpacity={0.5} onPress={drinks}>
           <View
             style={{
               backgroundColor: selectedCategoryIndex
@@ -276,7 +290,8 @@ const HomeScreen = ({ navigation }) => {
           display: "flex",
           flexDirection: "row",
           flexWrap: "wrap",
-          padding: 1,
+          padding: 0,
+          marginBottom: 50,
         }}
       >
         {foods.length > 0 &&
@@ -295,10 +310,10 @@ const HomeScreen = ({ navigation }) => {
                       top: 50,
                       height: 100,
                       width: 120,
-                      justifyContent: 'center',
-                      alignContent: 'center',
-                      alignItems: 'center',
-                      objectFit: 'cover'
+                      justifyContent: "center",
+                      alignContent: "center",
+                      alignItems: "center",
+                      objectFit: "cover",
                     }}
                   />
                 </View>
@@ -347,6 +362,7 @@ const HomeScreen = ({ navigation }) => {
                         image: food.image,
                       });
                       console.log("added");
+                      alert("Item Successfully Added To Cart");
                       console.log({ uri: food.image });
                     }}
                   >
@@ -385,10 +401,15 @@ const HomeScreen = ({ navigation }) => {
             justifyContent: "space-between",
           }}
         >
-          <Image
-            source={require("../assets/profile-img.webp")}
-            style={{ height: 50, width: 50, borderRadius: 25, marginTop: 15 }}
-          />
+          <TouchableOpacity
+            activeOpacity={0.5}
+            onPress={() => navigation.navigate("ProfileScreen")}
+          >
+            <Image
+              source={require("../assets/profile-img.webp")}
+              style={{ height: 30, width: 30, borderRadius: 25, marginTop: 15 }}
+            />
+          </TouchableOpacity>
           <TouchableOpacity
             style={{ paddingLeft: 10, marginTop: 20 }}
             onPress={signOut}

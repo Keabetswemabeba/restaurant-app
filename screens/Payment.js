@@ -1,8 +1,16 @@
 import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  Image,
+} from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
 import { CreditCardInput } from "react-native-credit-card-input";
 import { Secret_key, STRIPE_PUBLISHABLE_KEY } from "../keys";
-import COLORS from '../consts/colors'
+import COLORS from "../consts/colors";
+
 
 //creating a component
 const CURRENCY = "ZAR";
@@ -53,7 +61,7 @@ function subscribeUser(creditCardToken) {
   });
 }
 
-const StripeGateway = () => {
+const StripeGateway = ({ navigation }) => {
   const [CardInput, setCardInput] = useState({});
 
   const onSubmit = async () => {
@@ -82,9 +90,10 @@ const StripeGateway = () => {
       alert(error);
     } else {
       let payment_data = await charges();
-      console.log("pament_data", payment_data);
+      console.log("payment_data", payment_data);
       if (payment_data.status == "succeeded") {
-        alert("Payment Successfully");
+        alert("Payment Successful");
+        navigation.navigate("HomeScreen")
       } else {
         alert("Payment failed");
       }
@@ -93,7 +102,7 @@ const StripeGateway = () => {
 
   const charges = async () => {
     const card = {
-      amount: 10.00,
+      amount: 1000,
       currency: CURRENCY,
       source: CARD_TOKEN,
       description: "Developers Sin Subscription",
@@ -124,6 +133,10 @@ const StripeGateway = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.header}>
+        <Icon name="arrow-back-ios" size={28} onPress={navigation.goBack} />
+        <Text style={{ fontSize: 20, fontWeight: "bold" }}>Payment Screen</Text>
+      </View>
       {/* <StatusBar barStyle="light-content" backgroundColor="#2471A3" /> */}
       <Image
         source={{
@@ -140,7 +153,7 @@ const StripeGateway = () => {
         onChange={_onChange}
       />
 
-      <TouchableOpacity onPress={onSubmit} style={styles.button}>
+      <TouchableOpacity activeOpacity={0.5} onPress={onSubmit} style={styles.button}>
         <Text style={styles.buttonText}>Pay Now</Text>
       </TouchableOpacity>
     </View>
@@ -151,45 +164,50 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: COLORS.white,
-    
+  },
+  header: {
+    paddingVertical: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: 20,
+    marginTop: 15,
   },
   ImgStyle: {
-    width: '100%',
+    width: "100%",
     height: 200,
-    resizeMode: 'contain',
+    resizeMode: "contain",
     borderRadius: 8,
   },
-  button : {
+  button: {
     backgroundColor: COLORS.primary,
-    width:150,
-    height:45,
-    alignSelf:'center',
-    justifyContent:'center',
-    alignItems:'center',
-    marginTop:20,
-    borderRadius:5
+    width: 150,
+    height: 45,
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 20,
+    borderRadius: 5,
   },
-  buttonText : {
+  buttonText: {
     fontSize: 15,
     color: COLORS.white,
-    fontWeight:'bold',
-    textTransform:'uppercase'
+    fontWeight: "bold",
+    textTransform: "uppercase",
   },
-  inputContainerStyle : {
+  inputContainerStyle: {
     backgroundColor: COLORS.white,
-    borderRadius:5
+    borderRadius: 5,
   },
-  inputStyle : {
+  inputStyle: {
     backgroundColor: COLORS.light,
-    paddingLeft:15,
-    borderRadius:5,
+    paddingLeft: 15,
+    borderRadius: 5,
     color: COLORS.dark,
   },
-  labelStyle : {
-    marginBottom:5,
-    fontSize:12
-  }
- 
+  labelStyle: {
+    marginBottom: 5,
+    fontSize: 12,
+  },
 });
 
 export default StripeGateway;
