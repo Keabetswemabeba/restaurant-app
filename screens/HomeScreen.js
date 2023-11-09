@@ -157,9 +157,6 @@ const HomeScreen = ({ navigation }) => {
     console.log("some");
     getItems()
   }, []);
-  useEffect(() =>  {
-    console.log({ theFoods });
-  }, [theFoods])
 
   const ListCategories = () => {
     return (
