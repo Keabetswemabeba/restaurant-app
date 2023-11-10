@@ -12,6 +12,7 @@ import { StatusBar } from 'expo-status-bar';
 import ProfileScreen from './screens/ProfileScreen';
 import Payment from './screens/Payment'
 
+
 const Stack = createNativeStackNavigator()
 
 export default function App() {

@@ -7,7 +7,7 @@ import {
   Image,
   TouchableOpacity,
 } from "react-native";
-import React, { useEffect} from "react";
+import React, { useEffect, useState } from "react";
 import Icon from "react-native-vector-icons/MaterialIcons";
 import COLORS from "../consts/colors";
 import {
@@ -20,9 +20,9 @@ import { db } from "../config/firebase";
 import { PrimaryButton } from "../components/Button";
 
 const CartScreen = ({ navigation }) => {
-  const [foods, setFoods] = React.useState([]);
-  const [num, setnum] = React.useState(1);
-  const [prices, setPrices] = React.useState([]);
+  const [foods, setFoods] = useState([]);
+  const [num, setnum] = useState(1);
+  const [prices, setPrices] = useState([]);
 
   let count = 1;
 

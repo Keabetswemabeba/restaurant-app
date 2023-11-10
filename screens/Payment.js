@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from "react-native";
+import { ViewPropTypes } from 'deprecated-react-native-prop-types';
 import Icon from "react-native-vector-icons/MaterialIcons";
 import { CreditCardInput } from "react-native-credit-card-input";
 import { Secret_key, STRIPE_PUBLISHABLE_KEY } from "../keys";
@@ -209,5 +210,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
 });
+
+StripeGateway.propTypes = {
+  navigation: ViewPropTypes.navigation,
+};
 
 export default StripeGateway;

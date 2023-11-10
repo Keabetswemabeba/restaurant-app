@@ -6,7 +6,8 @@ import {
   TextInput,
 } from "react-native";
 import React, { useState, useEffect } from "react";
-import { signInWithEmailAndPassword } from "@firebase/auth";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { collection, getDocs } from "firebase/firestore";
 import { auth, db } from "../config/firebase";
 import COLORS from "../consts/colors";
 

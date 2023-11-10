@@ -17,6 +17,9 @@ import { db, storage } from "../config/firebase";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { auth } from "../config/firebase";
 import { getDownloadURL, getStorage, ref } from "firebase/storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { BackHandler } from "react-native";
+
 
 const { width } = Dimensions.get("screen");
 const cardWidth = width / 2 - 20;
@@ -33,6 +36,8 @@ const HomeScreen = ({ navigation }) => {
   const [foodPrice, setFoodPrice] = useState("");
   const [foodImage, setFoodImage] = useState("");
   const [addCart, setAddCart] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+
 
   // let theFoods = [];
   // let foodCategory = [];
@@ -45,9 +50,39 @@ const HomeScreen = ({ navigation }) => {
   const user = auth.currentUser;
   console.log(user);
 
+  useFocusEffect(
+    React.useCallback(() => {
+      const onBackPress = () => {
+        // Prevent going back to the previous screen
+        return true;
+      };
+  
+      // Add event listener for the back button press
+      BackHandler.addEventListener("hardwareBackPress", onBackPress);
+  
+      // Clean up the event listener when the screen is unfocused
+      return () => {
+        BackHandler.removeEventListener("hardwareBackPress", onBackPress);
+      };
+    }, [])
+  );
+  
+  // Update the isFocused state when the screen is focused or unfocused
+  useEffect(() => {
+    setIsFocused(true);
+  
+    return () => {
+      setIsFocused(false);
+    };
+  }, []);
+  
+
   const signOut = async () => {
     auth.signOut().then(() => console.log("User signed out!"));
-    navigation.push("Login");
+    navigation.reset({
+      index: 0,
+      routes: [{ name: "Login" }],
+    });
   };
 
   const getItems = async () => {
@@ -291,7 +326,7 @@ const HomeScreen = ({ navigation }) => {
           flexDirection: "row",
           flexWrap: "wrap",
           padding: 0,
-          marginBottom: 50,
+          marginBottom: 40,
         }}
       >
         {foods.length > 0 &&
@@ -407,12 +442,13 @@ const HomeScreen = ({ navigation }) => {
           >
             <Image
               source={require("../assets/profile-img.webp")}
-              style={{ height: 30, width: 30, borderRadius: 25, marginTop: 15 }}
+              style={{ height: 35, width: 35, borderRadius: 25, marginTop: 15 }}
             />
           </TouchableOpacity>
           <TouchableOpacity
             style={{ paddingLeft: 10, marginTop: 20 }}
             onPress={signOut}
+            disabled={!isFocused}
           >
             <Icon name="logout" size={20} color={COLORS.primary} />
           </TouchableOpacity>
@@ -496,7 +532,7 @@ const style = StyleSheet.create({
     width: cardWidth,
     marginHorizontal: 10,
     marginBottom: 20,
-    marginTop: 50,
+    marginTop: 30,
     borderRadius: 15,
     elevation: 13,
     backgroundColor: COLORS.white,
